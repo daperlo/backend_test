@@ -9,3 +9,4 @@ class Booking(Base):
     slot_id = Column(Integer, ForeignKey("slots.id"), nullable=False)
     user_id = Column(String, nullable=False)
     people_count = Column(Integer, nullable=False)
+    #meeting_link = Column(String, nullable=True)

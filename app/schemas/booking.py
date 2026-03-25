@@ -12,6 +12,6 @@ class BookingResponse(BaseModel):
     slot_id: UUID
     user_id: UUID
     people_count: int
-
+    #meeting_link: str
     class Config:
         from_attributes = True

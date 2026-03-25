@@ -5,6 +5,11 @@ from app.db.session import get_db
 from app.models.slot import Slot
 from app.models.booking import Booking
 from app.models.room import Room
+'''
+import uuid
+def gen_meeting_link():
+    return f"https://meet.jit.si/{uuid.uuid64()}"
+'''
 
 router = APIRouter()
 
@@ -14,6 +19,7 @@ def create_booking(data: dict, db: Session = Depends(get_db)):
     slot_id = data["slot_id"]
     user_id = data["user_id"]
     people_count = data["people_count"]
+    #meeting_link = gen_meeting_link()
 
     slot = db.query(Slot).filter(Slot.id == slot_id).first()
     if not slot:
