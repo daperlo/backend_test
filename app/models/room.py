@@ -3,8 +3,8 @@ from app.db.base import Base
 
 
 class Room(Base):
-    tablename = "rooms"
+    __tablename__ = "rooms"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
-    capacity = Column(Integer)
+    name = Column(String, nullable=False)
+    capacity = Column(Integer, nullable=False)

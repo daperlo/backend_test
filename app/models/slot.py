@@ -3,7 +3,7 @@ from app.db.base import Base
 
 
 class Slot(Base):
-    tablename = "slots"
+    __tablename__ = "slots"
 
     id = Column(Integer, primary_key=True, index=True)
     room_id = Column(Integer, ForeignKey("rooms.id"))

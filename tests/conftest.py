@@ -1,44 +1,45 @@
 import pytest
 from fastapi.testclient import TestClient
-from app.db.session import engine
-from app.db.base import Base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 from app.main import app
-from app.db.session import SessionLocal
-from app.auth.dependencies import get_current_user
+from app.db.base import Base
+from app.db.session import get_db
 
-@pytest.fixture(autouse=True)
-def setup_db():
-    Base.metadata.drop_all(bind=engine)
+# тестовая БД (ВАЖНО: она должна существовать в Postgres)
+TEST_DB_URL = "postgresql://postgres:postgres@localhost:5432/app_test_db"
+
+engine = create_engine(TEST_DB_URL, echo=False)
+
+TestingSessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
+
+# создаём таблицы 1 раз на всю сессию тестов
+@pytest.fixture(scope="session", autouse=True)
+def prepare_database():
     Base.metadata.create_all(bind=engine)
+    yield
+    Base.metadata.drop_all(bind=engine)
 
-# ---- TEST DB OVERRIDE ----
+
+# override зависимости FastAPI
 def override_get_db():
-    db = SessionLocal()
+    db = TestingSessionLocal()
     try:
         yield db
     finally:
         db.close()
 
 
-# ---- TEST USER OVERRIDE ----
-def override_get_current_user():
-    return {
-        "id": 1,
-        "email": "test@test.com",
-        "role": "admin"
-    }
+app.dependency_overrides[get_db] = override_get_db
 
 
-@pytest.fixture
+# тестовый клиент
+@pytest.fixture()
 def client():
-    app.dependency_overrides[get_current_user] = override_get_current_user
-    app.dependency_overrides[SessionLocal] = override_get_db  # (не обязательно)
-
-    # ВАЖНО: именно так правильно переопределять get_db
-    from app.db.session import get_db
-    app.dependency_overrides[get_db] = override_get_db
-
     with TestClient(app) as c:
         yield c
-
-    app.dependency_overrides.clear()
