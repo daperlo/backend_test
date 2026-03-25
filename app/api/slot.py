@@ -6,7 +6,7 @@ from app.db.session import get_db
 from app.models.slot import Slot
 from app.models.room import Room
 
-router = APIRouter(prefix="/rooms", tags=["slots"])
+router = APIRouter(prefix="/rooms")
 
 
 @router.get("/{room_id}/slots")
@@ -18,8 +18,8 @@ def get_slots(room_id: int, db: Session = Depends(get_db)):
             {
                 "id": s.id,
                 "room_id": s.room_id,
-                "start_time": s.start_time,
-                "end_time": s.end_time
+                "start_time": s.start_time.isoformat(),
+                "end_time": s.end_time.isoformat(),
             }
             for s in slots
         ]
@@ -33,7 +33,6 @@ def generate_slots(
     db: Session = Depends(get_db)
 ):
     room = db.query(Room).filter(Room.id == room_id).first()
-
     if not room:
         return {"created_slots": 0}
 
@@ -47,17 +46,17 @@ def generate_slots(
     current = start
 
     while current + timedelta(minutes=interval_minutes) <= end:
-        slot = (current, current + timedelta(minutes=interval_minutes))
+        next_time = current + timedelta(minutes=interval_minutes)
 
-        if slot not in existing_set:
+        if (current, next_time) not in existing_set:
             db.add(Slot(
                 room_id=room_id,
-                start_time=slot[0],
-                end_time=slot[1]
+                start_time=current,
+                end_time=next_time
             ))
             created += 1
 
-        current += timedelta(minutes=interval_minutes)
+        current = next_time
 
     db.commit()
 

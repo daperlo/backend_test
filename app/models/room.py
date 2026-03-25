@@ -1,26 +1,10 @@
-import uuid
-from typing import TYPE_CHECKING
-
-from sqlalchemy import String, Integer, Column
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-from app.models.base import Base
-
-if TYPE_CHECKING:
-    from app.models.slot import Slot
+from sqlalchemy import Column, Integer, String
+from app.db.base import Base
 
 
 class Room(Base):
-    __tablename__ = "rooms"
+    tablename = "rooms"
 
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-
-    name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    capacity: Mapped[int] = mapped_column(Integer, nullable=False)
-    description = Column(String, nullable=True)
-
-    slots: Mapped[list["Slot"]] = relationship(
-        "Slot",
-        back_populates="room",
-        cascade="all, delete-orphan"
-    )
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    capacity = Column(Integer)

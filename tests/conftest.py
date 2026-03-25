@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from app.db.session import engine
-from app.models.base import Base
+from app.db.base import Base
 from app.main import app
 from app.db.session import SessionLocal
 from app.auth.dependencies import get_current_user
