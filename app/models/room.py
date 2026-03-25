@@ -1,7 +1,7 @@
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String, Integer
+from sqlalchemy import String, Integer, Column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -17,8 +17,8 @@ class Room(Base):
 
     name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     capacity: Mapped[int] = mapped_column(Integer, nullable=False)
+    description = Column(String, nullable=True)
 
-    # связь со слотами
     slots: Mapped[list["Slot"]] = relationship(
         "Slot",
         back_populates="room",

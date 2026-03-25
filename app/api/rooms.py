@@ -15,16 +15,14 @@ def create_room(
     db: Session = Depends(get_db),
     user=Depends(get_current_user)
 ):
-    if user("role") != "admin":
+    if user["role"] != "admin":
         raise HTTPException(status_code=403, detail="Only admin can create rooms")
 
     room = Room(**data.model_dump())
     db.add(room)
     db.commit()
     db.refresh(room)
-
     return room
-
 
 @router.get("", response_model=list[RoomResponse])
 def get_rooms(
